@@ -72,4 +72,38 @@ exports.deletePost = onRequest(async (req, res) => {
       res.status(500).send('Error al eliminar el post');
     }
   });
+
+
+// Exporta la función 'showPosts' como una Cloud Function de Firebase
+exports.showPosts = onRequest(async (req, res) => {
+    try {
+        // Establecer una referencia a la colección 'pruebaPosts' en Firestore
+        const coleccionRef = getFirestore().collection("pruebaPosts");
+  
+        // Realizar una una consulta para obtener todos los documentos en la colección
+        const snapshot = await coleccionRef.get();
+  
+        // Creación de un array para almacenar los datos de los documentos
+        const posts = [];
+        // Iterar a través de cada documento
+        snapshot.forEach(doc => {
+            // Agrega los datos del documento al array 'posts'
+            // incluyendo el ID del documento y otros campos como 'nickName', 'title' y 'body'
+            posts.push({ 
+              id: doc.id, 
+              nickName: doc.data().nickName, 
+              title: doc.data().title, 
+              body: doc.data().body 
+            });
+        });
+  
+        // Envía una respuesta con los datos de los posts en formato JSON
+        res.json(posts);
+    } catch (error) {
+        // Maneja cualquier error que ocurra durante la obtención de los datos
+        console.error("Error al obtener los posts: ", error);
+        // Envía un estado de respuesta 500 (Error Interno del Servidor) en caso de error
+        res.status(500).send('Error al obtener los posts');
+    }
+  });
   
