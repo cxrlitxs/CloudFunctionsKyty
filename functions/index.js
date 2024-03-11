@@ -125,3 +125,32 @@ exports.addtimestamp = functions.firestore
       // Esto añade el campo 'createdAt' al documento con el valor del timestamp del servidor
       return snap.ref.update({ createdAt: timestamp });
   });
+
+
+// Exporta la función 'archivePost' como una Cloud Function que reacciona a eventos Firestore
+exports.archivePost = functions.firestore
+  // Especifica la ruta del documento en la colección 'pruebaPosts' que activará esta función
+  // '{docId}' que captura el ID del documento que se elimina en 'pruebaPosts'
+  .document('pruebaPosts/{docId}')
+  // Evento 'onDelete' que se activa cuando un documento se elimina
+  .onDelete(async (snap, context) => {
+      // Crea un timestamp con la hora actual del servidor para marcar cuándo se eliminó el documento
+      const deletedAt = FieldValue.serverTimestamp();
+
+      // Prepara un objeto con los datos del documento eliminado para archivarlo
+      const documentoParaArchivar = {
+        nickName: snap.data().nickName, 
+        title: snap.data().title, 
+        body: snap.data().body,
+        createdAt: snap.data().createdAt, // El campo 'createdAt' del documento original
+        deletedAt: deletedAt, // El timestamp de eliminación
+      };
+
+    // Usar el mismo ID del documento eliminado para el documento en la colección 'archivePosts'
+    const docId = context.params.docId;
+
+    return getFirestore()
+      .collection("archivePosts")
+      .doc(docId) //Utilizar el mismo Id del que se ha borrado
+      .set(documentoParaArchivar); // Usa set para guardar los datos en el documento (en este caso crearlo)
+  });  
