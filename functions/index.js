@@ -38,3 +38,38 @@ exports.addpost = onRequest(async (req, res) => {
         res.status(500).send('Error al insertar el post')
     }
 });
+
+// Exporta la función 'deletePost' como una Cloud Function para Firebase
+exports.deletePost = onRequest(async (req, res) => {
+    // Obtener el ID del post a eliminar desde los parámetros de la solicitud HTTP
+    const postId = req.query.postId;
+  
+    // Compruebar si se ha proporcionado el ID del post, devuelve un error 400 si no es así
+    if (!postId) {
+      return res.status(400).send('ID del post requerido');
+    }
+  
+    try {
+      // Localizar el post con el Id especificado en Firestore
+      const docRef = getFirestore().collection("pruebaPosts").doc(postId);
+  
+      // Verificar si el documento (post) existe
+      const doc = await docRef.get();
+      if (!doc.exists) {
+        // Si el documento no existe, devuelve un error 404
+        return res.status(404).send(`No se encontró el elemento con ID: ${postId}`);
+      }
+  
+      // Si el documento existe, eliminarlo
+      await docRef.delete();
+  
+      // Enviar una respuesta JSON confirmando que el post ha sido eliminado
+      res.json({ result: `El elemento con ID: ${postId} se eliminó correctamente.` });
+    } catch (error) {
+      // Manejar cualquier error durante la operación de eliminación
+      console.error("Error al eliminar el post: ", error);
+      // Enviar una respuesta de error 500 en caso de un error del servidor
+      res.status(500).send('Error al eliminar el post');
+    }
+  });
+  
