@@ -11,6 +11,7 @@ const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const {initializeApp} = require("firebase-admin/app");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const functions = require("firebase-functions");
 
 //Inicialización de la app con las creedenciales
 initializeApp();
@@ -107,3 +108,20 @@ exports.showPosts = onRequest(async (req, res) => {
     }
   });
   
+// Exportar una función 'addtimestamp' como una Cloud Function de Firestore
+exports.addtimestamp = functions.firestore
+  // Especificar la ruta del documento en la colección 'pruebaPosts' que activará esta función
+  // '{docId}' es un parámetro que representa el ID de cualquier documento que se cree en 'pruebaPosts'
+  .document('pruebaPosts/{docId}')
+  // Evento 'onCreate' que se activa cuando un nuevo documento es creado en la colección
+  .onCreate(async (snap, context) => {
+      // Obtener el ID del documento recién creado utilizando el parámetro 'docId' definido en la ruta del documento
+      const docId = context.params.docId;
+
+      // Crear un timestamp utilizando la hora actual del servidor
+      const timestamp = FieldValue.serverTimestamp();
+
+      // Actualizar el documento recién creado con el nuevo campo 'createdAt'
+      // Esto añade el campo 'createdAt' al documento con el valor del timestamp del servidor
+      return snap.ref.update({ createdAt: timestamp });
+  });
