@@ -17,7 +17,7 @@ const functions = require("firebase-functions");
 initializeApp();
 
 // Exporta la función 'addpost' como una Cloud Function para Firebase
-exports.addpost = onRequest(async (req, res) => {
+exports.addpost = functions.region('europe-west1').https.onRequest(async (req, res) => {
     // Obtiene los parámetros 'nickName', 'body' y 'title' de la solicitud HTTP
     const nickName = req.query.nickName;
     const body = req.query.body;
@@ -41,7 +41,7 @@ exports.addpost = onRequest(async (req, res) => {
 });
 
 // Exporta la función 'deletePost' como una Cloud Function para Firebase
-exports.deletePost = onRequest(async (req, res) => {
+exports.deletePost = functions.region('europe-west1').https.onRequest(async (req, res) => {
     // Obtener el ID del post a eliminar desde los parámetros de la solicitud HTTP
     const postId = req.query.postId;
   
@@ -76,7 +76,7 @@ exports.deletePost = onRequest(async (req, res) => {
 
 
 // Exporta la función 'showPosts' como una Cloud Function de Firebase
-exports.showPosts = onRequest(async (req, res) => {
+exports.showPosts = functions.region('europe-west1').https.onRequest(async (req, res) => {
     try {
         // Establecer una referencia a la colección 'pruebaPosts' en Firestore
         const coleccionRef = getFirestore().collection("pruebaPosts");
@@ -109,7 +109,7 @@ exports.showPosts = onRequest(async (req, res) => {
   });
   
 // Exportar una función 'addtimestamp' como una Cloud Function de Firestore
-exports.addtimestamp = functions.firestore
+exports.addtimestamp = functions.region('europe-west1').firestore
   // Especificar la ruta del documento en la colección 'pruebaPosts' que activará esta función
   // '{docId}' es un parámetro que representa el ID de cualquier documento que se cree en 'pruebaPosts'
   .document('pruebaPosts/{docId}')
@@ -128,7 +128,7 @@ exports.addtimestamp = functions.firestore
 
 
 // Exporta la función 'archivePost' como una Cloud Function que reacciona a eventos Firestore
-exports.archivePost = functions.firestore
+exports.archivePost = functions.region('europe-west1').firestore
   // Especifica la ruta del documento en la colección 'pruebaPosts' que activará esta función
   // '{docId}' que captura el ID del documento que se elimina en 'pruebaPosts'
   .document('pruebaPosts/{docId}')
